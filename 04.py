@@ -13,7 +13,7 @@ def isComplete(board):
     return any(isBingo(row) for row in board) or any(isBingo(col) for col in columns)
 
 def isBingo(line):
-    return sum(x == MARKED for x in line) == len(line)
+    return all(x == MARKED for x in line)
 
 def sumBoard(board):
     return sum(int(value) for line in board for value in line if value != MARKED)
