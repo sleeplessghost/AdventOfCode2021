@@ -22,5 +22,5 @@ def matchSignals(signals: dict[int, set], output: set):
 
 inputs = [x.strip() for x in open('in/08.txt')]
 outputs = [x.split(' | ')[1].split(' ') for x in inputs]
-print('part1:', sum([count1478(x) for x in outputs]))
-print('part2:', sum([convertOutput(x) for x in inputs]))
+print('part1:', sum(count1478(x) for x in outputs))
+print('part2:', sum(convertOutput(x) for x in inputs))
