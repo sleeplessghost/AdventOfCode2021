@@ -1,6 +1,6 @@
 
 def count1478(signals):
-    return sum(len(x) in [2, 4, 3, 7] for x in signals)
+    return sum(len(x) in [2, 3, 4, 7] for x in signals)
 
 def convertOutput(line):
     signals, outputs = [[set(p) for p in patterns.split()] for patterns in line.split(' | ')]
@@ -21,6 +21,6 @@ def matchSignals(signals: dict[int, set], output: set):
         case 7,_,_: return '8'
 
 inputs = [x.strip() for x in open('in/08.txt')]
-outputs = [x.split(' | ')[1].split(' ') for x in inputs]
+outputs = [x.split(' | ')[1].split() for x in inputs]
 print('part1:', sum(count1478(x) for x in outputs))
 print('part2:', sum(convertOutput(x) for x in inputs))

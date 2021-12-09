@@ -16,7 +16,7 @@ def isBingo(line):
     return all(x == MARKED for x in line)
 
 def sumBoard(board):
-    return sum(int(value) for line in board for value in line if value != MARKED)
+    return sum(int(value) for row in board for value in row if value != MARKED)
 
 def completeAllBoards(numbers, boards):
     complete = []
