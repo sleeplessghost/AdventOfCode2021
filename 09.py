@@ -7,9 +7,6 @@ def heightmap(input):
 def neighbours(x, y):
     return [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
 
-def findLows(mapped):
-    return [point for point in mapped if isLow(mapped, point)]
-
 def isLow(mapped, point):
     return all(n not in mapped or mapped[n] > mapped[point] for n in neighbours(*point))
 
@@ -21,16 +18,13 @@ def basinSize(mapped, low):
     while(queue):
         point = queue.popleft()
         basin.add(point)
-        points = [n for n in neighbours(*point) if isTraversable(mapped, point, n)]
-        for p in points: queue.append(p)
+        queue.extend(n for n in neighbours(*point) if isTraversable(mapped, point, n))
     return len(basin)
 
 mapped = heightmap([line.strip() for line in open('in/09.txt')])
-lows = findLows(mapped)
+lows = [point for point in mapped if isLow(mapped, point)]
 basins = [basinSize(mapped, low) for low in lows]
 basins.sort()
 
 print('part1:', sum(mapped[point] + 1 for point in lows))
 print('part2:', prod(basins[-3:]))
-
-
