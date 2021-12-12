@@ -33,4 +33,3 @@ print('part1:', sum(v > 1 for v in grid.values()))
 
 drawLines(grid, diagonals)
 print('part2:', sum(v > 1 for v in grid.values()))
-
