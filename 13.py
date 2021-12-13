@@ -1,51 +1,26 @@
-from collections import defaultdict
-
-def foldgrid(grid, instruction):
+def fold(dots, instruction):
     axis, value = instruction.split('=')
     value = int(value)
-    maxy = max(y for x,y in grid) + 1
-    maxx = max(x for x,y in grid) + 1
-    if axis == 'x':
-        for x in range(value, maxx):
-            diff = x - value
-            mirrorX = x - diff - diff
-            for y in range(maxy):
-                if (x,y) in grid:
-                    if grid[(x,y)]:
-                        grid[(mirrorX,y)] = True
-                    del grid[(x,y)]
-    elif axis == 'y':
-        for y in range(value, maxy):
-            diff = y - value
-            mirrorY = y - diff - diff
-            for x in range(maxx):
-                if (x,y) in grid:
-                    if grid[(x,y)]:
-                        grid[(x,mirrorY)] = True
-                    del grid[(x,y)]
+    return {foldPoint(point, axis, value) for point in dots}
 
-def printGr(grid):
-    for y in range(max(y for x,y in grid) + 1):
-        for x in range(max(x for x,y in grid) + 1):
-            if grid[(x,y)]: print('X', end="")
-            else: print(" ", end="")
-        print()
+def foldPoint(point, axis, value):
+    x,y = point
+    if axis == 'x' and x > value: x = value + value - x
+    if axis == 'y' and y > value: y = value + value - y
+    return (x,y)
+
+def printDots(dots):
+    rx, ry = max(x for x,y in dots), max(y for x,y in dots)
+    text = [['  ' for _ in range(rx + 1)] for _ in range(ry + 1)]
+    for x,y in dots: text[y][x] = '██'
+    for line in text: print(''.join(line))
 
 dots, instructions = open('in/13.txt').read().split('\n\n')
-dots = [x.strip().split(',') for x in dots.split()]
-instructions = [x.strip().replace("fold along ", "") for x in instructions.split('\n')]
+dots = {tuple(int(p) for p in line.split(',')) for line in dots.split()}
+instructions = [i.strip().replace("fold along ", "") for i in instructions.split('\n')]
 
-grid = defaultdict(bool)
-for x,y in dots:
-    grid[(int(x), int(y))] = True
+print('part1:', len(fold(dots, instructions[0])))
 
-p1 = grid.copy()
-foldgrid(p1, instructions[0])
-print('part1', sum(v for v in p1.values()))
-
-p2 = grid.copy()
-for instr in instructions:
-    foldgrid(p2, instr)
-
-printGr(p2)
-print('part2:', 'read above')
+for instr in instructions: dots = fold(dots, instr)
+print('part2:')
+printDots(dots)
