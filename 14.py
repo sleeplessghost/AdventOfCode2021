@@ -1,50 +1,32 @@
 from collections import defaultdict
 
-def step(current, rules):
-    pairs = [''.join(x) for x in zip(current, current[1:])]
-    return pairs[0][0] + ''.join(getReplacement(pair, rules) for pair in pairs)
+def pairDict(template):
+    pairs = [''.join(x) for x in zip(template, template[1:])]
+    return {p: pairs.count(p) for p in pairs}
 
-def getReplacement(pair, rules):
-    if pair in rules:
-        return rules[pair] + pair[1]
-    return pair[1]
+def step(pairCounts, rules):
+    after = defaultdict(int)
+    for pair,count in pairCounts.items():
+        if pair in rules:
+            newPairs = (pair[0] + rules[pair], rules[pair] + pair[1])
+            for p in newPairs: after[p] += count
+        else: after[pair] += count
+    return after
+
+def countLetters(template, pairCounts):
+    letterCounts = defaultdict(int)
+    letterCounts[template[0]] += 1
+    for pair,count in pairCounts.items(): letterCounts[pair[1]] += count
+    return letterCounts
+
+def solve(template, rules, iterations):
+    temp = pairDict(template)
+    for _ in range(iterations): temp = step(temp, rules)
+    counts = countLetters(template, temp)
+    return max(counts.values()) - min(counts.values())
 
 template, rules = open('in/14.txt').read().split('\n\n')
 rules = [line.split(' -> ') for line in rules.split('\n')]
-rules = {a: b for a,b in rules}
-
-temp = template
-for _ in range(10):
-    temp = step(temp, rules)
-
-counts = [temp.count(c) for c in set(temp)]
-counts.sort()
-
-print('part1:', counts[-1] - counts[0])
-
-pairCounts = defaultdict(int)
-pairs = [''.join(x) for x in zip(template, template[1:])]
-for pair in pairs: pairCounts[pair] += 1
-
-for i in range(40):
-    temp = defaultdict(int)
-    for pair in [p for p in pairCounts]:
-        if pairCounts[pair] > 0:
-            if pair in rules:
-                results = (pair[0] + rules[pair], rules[pair] + pair[1])
-                for p in results: temp[p] += pairCounts[pair]
-            else: temp[pair] += pairCounts[pair]
-    pairCounts = temp.copy()
-
-letterCounts = defaultdict(int)
-letterCounts[template[0]] += 1
-for pair in pairCounts:
-    a, b = pair
-    letterCounts[b] += pairCounts[pair]
-least = min(letterCounts.values())
-most = max(letterCounts.values())
-print('part2:', most - least)
-
-
-
-
+rules = {pair: insertion for pair,insertion in rules}
+print('part1:', solve(template, rules, 10))
+print('part2:', solve(template, rules, 40))
