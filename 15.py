@@ -4,6 +4,9 @@ import numpy as np
 def neighbours(x, y):
     return [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
 
+def getMap(inputs):
+    return {(x,y): inputs[y][x] for x in range(len(inputs[0])) for y in range(len(inputs))}
+
 def getRisks(mapped):
     risks, q = {}, []
     heappush(q, (0, (0,0)))
@@ -28,9 +31,6 @@ def makeBigger(inputs):
                 tiled[y][x] += (x // LX) + (y // LY)
                 if tiled[y][x] > 9: tiled[y][x] %= 9
     return tiled
-
-def getMap(inputs):
-    return {(x,y): inputs[y][x] for x in range(len(inputs[0])) for y in range(len(inputs))}
 
 def solve(input):
     mapped = getMap(input)
