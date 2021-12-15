@@ -1,46 +1,41 @@
+import numpy as np
+from collections import deque
+
 def neighbours(x, y):
     return [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
 
-def riskmap(mapped):
-    mx, my = max(x for x,y in mapped), max(y for x,y in mapped)
+def getRisks(mapped):
     risks = {(0,0): 0}
-    for _ in range(3):
-        for y in range(my + 1):
-            for x in range(mx + 1):
-                point = (x,y)
-                riskToHere = risks[point]
-                nextPoints = [n for n in neighbours(*point) if n in mapped]
-                for n in nextPoints:
-                    risk = riskToHere + mapped[n]
-                    if n not in risks or risk < risks[n]: risks[n] = risk
+    q = deque([(0,0)])
+    while q:
+        point = q.popleft()
+        nextPoints = [n for n in neighbours(*point) if n in mapped]
+        for n in nextPoints:
+            risk = risks[point] + mapped[n]
+            if n not in risks or risk < risks[n]:
+                risks[n] = risk
+                q.append(n)
     return risks
 
-def quintmap(mapped):
-    newmap = {}
-    lx = max(x for x,y in mapped) + 1
-    ly = max(y for x,y in mapped) + 1
-    for (x,y), value in mapped.items():
-        for mult in range(5):
-            value = mapped[(x,y)] + (mult * 1)
-            if value > 9: value = value % 9
-            newmap[(x + (lx * mult), y)] = value
-    secondmap = {}
-    for (x,y), value in newmap.items():
-        for mult in range(5):
-            value = newmap[(x,y)] + (mult * 1)
-            if value > 9: value = value % 9
-            secondmap[(x, y + (ly * mult))] = value
-    return secondmap
+def makeBigger(inputs):
+    LX, LY = len(inputs[0]), len(inputs)
+    tiled = np.tile(inputs, (5, 5))
+    for y in range(5 * LY):
+        for x in range(5 * LX):
+            if x >= LX or y >= LY:
+                tiled[y][x] += (x // LX) + (y // LY)
+                if tiled[y][x] > 9: tiled[y][x] %= 9
+    return tiled
 
-inputs = [[int(n) for n in x.strip()] for x in open('in/15.txt')]
-mapped = {}
-for y in range(len(inputs)):
-    for x in range(len(inputs[0])):
-        mapped[(x,y)] = inputs[y][x]
+def getMap(inputs):
+    return {(x,y): inputs[y][x] for x in range(len(inputs[0])) for y in range(len(inputs))}
 
-risks = riskmap(mapped)
-print('part1:', risks[(max(x for x,y in mapped), max(y for x,y in mapped))])
+def solve(input):
+    mapped = getMap(input)
+    risks = getRisks(mapped)
+    return risks[(max(x for x,y in mapped), max(y for x,y in mapped))]
 
-bigger = quintmap(mapped)
-risks = riskmap(bigger)
-print('part2:', risks[(max(x for x,y in bigger), max(y for x,y in bigger))])
+input = [[int(n) for n in x.strip()] for x in open('in/15.txt')]
+bigInput = makeBigger(input)
+print('part1:', solve(input))
+print('part2:', solve(bigInput))
