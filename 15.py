@@ -1,20 +1,22 @@
+from heapq import heappop, heappush
 import numpy as np
-from collections import deque
 
 def neighbours(x, y):
     return [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
 
 def getRisks(mapped):
-    risks = {(0,0): 0}
-    q = deque([(0,0)])
+    risks, q = {}, []
+    heappush(q, (0, (0,0)))
     while q:
-        point = q.popleft()
-        nextPoints = [n for n in neighbours(*point) if n in mapped]
-        for n in nextPoints:
-            risk = risks[point] + mapped[n]
-            if n not in risks or risk < risks[n]:
-                risks[n] = risk
-                q.append(n)
+        risk, point = heappop(q)
+        if risk not in risks or risk < risks[point]:
+            risks[point] = risk
+            nextPoints = [n for n in neighbours(*point) if n in mapped]
+            for n in nextPoints:
+                r = risk + mapped[n]
+                if n not in risks or r < risks[n]:
+                    risks[n] = r
+                    heappush(q, (r, n))
     return risks
 
 def makeBigger(inputs):
